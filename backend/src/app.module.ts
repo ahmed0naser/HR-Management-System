@@ -4,6 +4,7 @@ import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { UserModule } from './users/users.module';
+import { AuthModule } from './auth/auth.module';
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
@@ -21,6 +22,7 @@ import { UserModule } from './users/users.module';
         synchronize: config.get<string>('NODE_ENV') === 'dev' ? true : false,
       }),
     }),
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],
