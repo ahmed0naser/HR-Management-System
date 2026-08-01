@@ -1,14 +1,16 @@
 import { Exclude } from 'class-transformer';
 
 import { EmpStatus } from 'src/common/enums/EmpStatus.enum';
-import { Roles } from 'src/common/enums/roles.enum';
+import { RolesEnum } from 'src/common/enums/roles.enum';
 import {
   Column,
   CreateDateColumn,
   Entity,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { RefreshToken } from './refreshToken.entity';
 const DEFAULT_TIME = 'CURRENT_TIMESTAMP(6)';
 @Entity({ name: 'Users' })
 export class User {
@@ -42,8 +44,8 @@ export class User {
   @Column({ type: 'enum', enum: EmpStatus, default: EmpStatus.Active })
   empStatus: EmpStatus;
 
-  @Column({ type: 'enum', enum: Roles, default: Roles.Employee })
-  role: Roles;
+  @Column({ type: 'enum', enum: RolesEnum, default: RolesEnum.Employee })
+  role: RolesEnum;
   @CreateDateColumn({ type: 'timestamp', default: () => DEFAULT_TIME })
   createdAt: Date;
   @UpdateDateColumn({
@@ -52,4 +54,6 @@ export class User {
     onUpdate: DEFAULT_TIME,
   })
   updatedAt: Date;
+  @OneToMany(() => RefreshToken, (token) => token.user)
+  refreshTokens: RefreshToken[];
 }

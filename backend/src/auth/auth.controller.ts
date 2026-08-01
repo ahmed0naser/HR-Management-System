@@ -1,16 +1,58 @@
-import { Controller, Post, Req, UseGuards } from '@nestjs/common';
+import { Controller, Post, Req, Res, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import type { Request } from 'express';
+import type { Request, Response } from 'express';
 import { AuthService } from './auth.service';
 import { CurrentUser } from 'src/common/decorators/current-user.decorator';
 import { User } from 'src/users/entities/user.entity';
 
+import { ConfigService } from '@nestjs/config';
+
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly config: ConfigService,
+  ) {}
   @Post('/login')
   @UseGuards(AuthGuard('local'))
-  async login(@CurrentUser() user: User) {
-    return this.authService.login(user);
+  async login(
+    @CurrentUser() user: User,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const { token, refreshToken } = await this.authService.login(user);
+    return this.cookieSetter(token, refreshToken, res);
+  }
+  @Post('/refresh')
+  async refresh(
+    @Req() req: Request,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const access_token: string = req.cookies.access_token;
+    const refresh_token: string = req.cookies.refresh_token;
+
+    const { token, refreshToken } = await this.authService.refresh(
+      access_token,
+      refresh_token,
+    );
+    return this.cookieSetter(token, refreshToken, res);
+  }
+  private cookieSetter(
+    access_token: string,
+    refresh_token: string,
+    res: Response,
+  ) {
+    res.cookie('access_token', access_token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production' ? true : false,
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+      sameSite: 'lax',
+    });
+    res.cookie('refresh_token', refresh_token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production' ? true : false,
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+      sameSite: 'lax',
+    });
+    return { status: 'success' };
   }
 }

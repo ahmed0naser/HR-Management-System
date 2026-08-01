@@ -9,7 +9,7 @@ import {
   MinLength,
   MaxLength,
 } from 'class-validator';
-import { Roles } from 'src/common/enums/roles.enum';
+import { RolesEnum } from 'src/common/enums/roles.enum';
 import { EmpStatus } from 'src/common/enums/EmpStatus.enum';
 
 export class CreateUserDto {
@@ -66,6 +66,6 @@ export class CreateUserDto {
   empStatus?: EmpStatus;
 
   @IsOptional()
-  @IsEnum(Roles)
-  role?: Roles;
+  @IsEnum(RolesEnum)
+  role?: RolesEnum;
 }

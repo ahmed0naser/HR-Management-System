@@ -17,12 +17,17 @@ import { UserService } from './users.service';
 import { CreateUserDto } from './dtos/create-user.dto';
 import { UpdateUserDto } from './dtos/update-user.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { AuthGuard } from '@nestjs/passport';
+import { Roles } from 'src/common/decorators/roles.decorator';
+import { RolesEnum } from 'src/common/enums/roles.enum';
+import { RolesGuard } from 'src/common/guards/roles.guards';
 
 @Controller('/users')
 export class UserController {
   constructor(private readonly service: UserService) {}
   @Get()
-  //   @UseGuards(Admin,HR)
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles(RolesEnum.Admin, RolesEnum.HR_Manager)
   getAllUsers(
     @Query('pageNumber', new DefaultValuePipe(1), ParseIntPipe)
     pageNumber: number = 1,
@@ -30,23 +35,27 @@ export class UserController {
   ) {
     return this.service.findAll(pageNumber, limit);
   }
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles(RolesEnum.Admin, RolesEnum.HR_Manager)
   @Get('/:id')
-  //   @UseGuards(Admin,HR,manager)
   getUser(@Param('id') id: string) {
     return this.service.findOne(id);
   }
   @Post()
-  //   @UseGuards(Admin,HR)
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles(RolesEnum.Admin, RolesEnum.HR_Manager)
   createUser(@Body() dto: CreateUserDto) {
     return this.service.createUser(dto);
   }
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles(RolesEnum.Admin, RolesEnum.HR_Manager)
   @Patch(':id')
-  //   @UseGuards(Admin,HR)
   updateUser(@Param('id') id: string, @Body() dto: UpdateUserDto) {
     return this.service.update(id, dto);
   }
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles(RolesEnum.Admin)
   @Delete(':id')
-  //   @UseGuards(Admin)
   terminateUser(@Param('id') id: string) {
     return this.service.remove(id);
   }
