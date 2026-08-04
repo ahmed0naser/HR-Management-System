@@ -22,6 +22,7 @@ export class AuthService {
       const user = await this.userService.findByEmail(email);
       const passed = await bcrypt.compare(pass, user.password);
       if (!passed) throw new UnauthorizedException();
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { password, ...cleanUser } = user;
       return cleanUser;
     } catch (e) {
@@ -41,7 +42,6 @@ export class AuthService {
 
   async refresh(accessToken: string, rawRefreshToken: string) {
     const decoded: payloadType = this.jwtService.decode(accessToken);
-    console.log('accessToken received:', accessToken);
     if (!decoded?.sub) throw new UnauthorizedException('invalid token');
 
     const candidates = await this.tokenRepo.find({
@@ -67,7 +67,22 @@ export class AuthService {
     }
     throw new UnauthorizedException('session expired');
   }
-  private async res(user) {
+  async logout(id: string) {
+    const candidates = await this.tokenRepo.find({
+      where: {
+        user: { id },
+        revoked: false,
+        expiresAt: MoreThan(new Date()),
+      },
+      relations: { user: true },
+    });
+
+    for (const candidate of candidates) {
+      candidate.revoked = true;
+      await this.tokenRepo.save(candidate);
+    }
+  }
+  private async res(user: User) {
     const payload: payloadType = {
       sub: user.id,
       email: user.email,

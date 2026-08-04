@@ -27,14 +27,25 @@ export class AuthController {
     @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
   ) {
-    const access_token: string = req.cookies.access_token;
-    const refresh_token: string = req.cookies.refresh_token;
+    const access_token: string = req.cookies.access_token as string;
+    const refresh_token: string = req.cookies.refresh_token as string;
 
     const { token, refreshToken } = await this.authService.refresh(
       access_token,
       refresh_token,
     );
     return this.cookieSetter(token, refreshToken, res);
+  }
+  @Post('/logout')
+  @UseGuards(AuthGuard('jwt'))
+  async logout(
+    @CurrentUser() user: User,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    await this.authService.logout(user.id);
+    res.clearCookie('access_token');
+    res.clearCookie('refresh_token');
+    return { status: 'success', message: 'Logged out' };
   }
   private cookieSetter(
     access_token: string,
