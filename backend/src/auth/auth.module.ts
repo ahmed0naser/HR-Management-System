@@ -8,12 +8,16 @@ import { LocalStrategy } from './local.strategy';
 import { JwtStrategy } from './jwt.strategy';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { RefreshToken } from 'src/users/entities/refreshToken.entity';
+import { User } from 'src/users/entities/user.entity';
+import { MailModule } from 'src/Mail/mail.module';
+import { LoginAttempt } from './entities/login-attempt.entity';
 @Module({
   controllers: [AuthController],
   providers: [AuthService, LocalStrategy, JwtStrategy],
   imports: [
     UserModule,
-    TypeOrmModule.forFeature([RefreshToken]),
+    MailModule,
+    TypeOrmModule.forFeature([RefreshToken, User, LoginAttempt]),
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],

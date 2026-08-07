@@ -56,4 +56,11 @@ export class User {
   updatedAt: Date;
   @OneToMany(() => RefreshToken, (token) => token.user)
   refreshTokens: RefreshToken[];
+
+  @Exclude()
+  @Column({ type: 'varchar', nullable: true, default: null })
+  passwordResetTokenHash: string | null;
+  @Exclude()
+  @Column({ type: 'timestamp', nullable: true, default: null })
+  passwordResetTokenExpiry: Date | null;
 }

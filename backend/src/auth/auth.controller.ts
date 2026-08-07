@@ -1,4 +1,12 @@
-import { Controller, Post, Req, Res, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Param,
+  Post,
+  Req,
+  Res,
+  UseGuards,
+} from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import type { Request, Response } from 'express';
 import { AuthService } from './auth.service';
@@ -6,6 +14,8 @@ import { CurrentUser } from 'src/common/decorators/current-user.decorator';
 import { User } from 'src/users/entities/user.entity';
 
 import { ConfigService } from '@nestjs/config';
+import { ForgotPasswordDto } from './dto/forgotPassword.dto';
+import { ResetPasswordDto } from './dto/resetPassword.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -47,6 +57,19 @@ export class AuthController {
     res.clearCookie('refresh_token');
     return { status: 'success', message: 'Logged out' };
   }
+  @Post('/forgot-password')
+  async forgotPassword(@Body() dto: ForgotPasswordDto) {
+    return this.authService.forgotPassword(dto.email);
+  }
+
+  @Post('/reset-password/:token')
+  async resetPassword(
+    @Body() dto: ResetPasswordDto,
+    @Param('token') token: string,
+  ) {
+    return this.authService.resetPassword(dto, token);
+  }
+
   private cookieSetter(
     access_token: string,
     refresh_token: string,
