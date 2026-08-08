@@ -52,8 +52,9 @@ export class AuthService {
       throw new UnauthorizedException('wrong credentials');
     }
   }
-  async login(user: User) {
-    const { token, refreshToken } = await this.res(user);
+  async login(user: payloadType) {
+    const { sub: id, email, role } = user;
+    const { token, refreshToken } = await this.res({ id, email, role });
 
     return {
       token,
@@ -151,7 +152,7 @@ export class AuthService {
     await this.userRepo.save(user);
     return { status: 'success', message: 'password reset successfully' };
   }
-  private async res(user: User) {
+  private async res(user: Pick<User, 'id' | 'email' | 'role'>) {
     const payload: payloadType = {
       sub: user.id,
       email: user.email,

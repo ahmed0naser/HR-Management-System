@@ -16,6 +16,7 @@ import { User } from 'src/users/entities/user.entity';
 import { ConfigService } from '@nestjs/config';
 import { ForgotPasswordDto } from './dto/forgotPassword.dto';
 import { ResetPasswordDto } from './dto/resetPassword.dto';
+import type { payloadType } from 'src/common/types/payloadType';
 
 @Controller('auth')
 export class AuthController {
@@ -26,7 +27,7 @@ export class AuthController {
   @Post('/login')
   @UseGuards(AuthGuard('local'))
   async login(
-    @CurrentUser() user: User,
+    @CurrentUser() user: payloadType,
     @Res({ passthrough: true }) res: Response,
   ) {
     const { token, refreshToken } = await this.authService.login(user);
