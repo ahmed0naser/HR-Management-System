@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   DefaultValuePipe,
@@ -21,7 +22,9 @@ import { AuthGuard } from '@nestjs/passport';
 import { Roles } from 'src/common/decorators/roles.decorator';
 import { RolesEnum } from 'src/common/enums/roles.enum';
 import { RolesGuard } from 'src/common/guards/roles.guards';
-
+import { SelfGuard } from 'src/common/guards/self.guard';
+import { diskStorage } from 'multer';
+import { extname } from 'node:path';
 @Controller('/users')
 export class UserController {
   constructor(private readonly service: UserService) {}
@@ -59,8 +62,34 @@ export class UserController {
   terminateUser(@Param('id') id: string) {
     return this.service.remove(id);
   }
-  //   @Post(':id')
-  //   @UseGuards(Admin,HR,self)
-  //   @UseInterceptors(FileInterceptor('photo'))
-  //   uploadPhoto(@UploadedFile()file){}
+  @Post('/profile-pic/:id')
+  @UseGuards(AuthGuard('jwt'), SelfGuard)
+  @UseInterceptors(
+    FileInterceptor('photo', {
+      storage: diskStorage({
+        destination: './uploads/photos',
+        filename(req, file, cb) {
+          const filename = `${Date.now()}-${Math.round(Math.random() * 1000000)}${file.originalname}`;
+          cb(null, filename);
+        },
+      }),
+      limits: { fileSize: 5 * 1024 * 1024 },
+      fileFilter(req, file, cb) {
+        if (
+          file.mimetype.startsWith('image') &&
+          !file.mimetype.includes('gif')
+        ) {
+          cb(null, true);
+        } else {
+          cb(Error('Unaccepted image type please upload a valid image'), false);
+        }
+      },
+    }),
+  )
+  uploadPhoto(
+    @UploadedFile() file: Express.Multer.File,
+    @Param('id') id: string,
+  ) {
+    return this.service.uploadImage(file, id);
+  }
 }

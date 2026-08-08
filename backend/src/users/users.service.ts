@@ -46,6 +46,12 @@ export class UserService {
     await this.userRepo.save(user);
     return user;
   }
+  async uploadImage(file: Express.Multer.File, id: string) {
+    const user = await this.findOne(id);
+    user.photoUrl = file.filename;
+    await this.userRepo.save(user);
+    return user.photoUrl;
+  }
   private async hashPassword(password: string, salt: number) {
     const hashed = await bcrypt.hash(password, salt);
     return hashed;

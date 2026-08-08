@@ -43,9 +43,12 @@ export class AuthService {
       const passed = await bcrypt.compare(pass, user.password);
       if (!passed) throw new UnauthorizedException();
       await this.logger(ip, email, true);
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { password, ...cleanUser } = user;
-      return cleanUser;
+
+      return {
+        sub: user.id,
+        email: user.email,
+        role: user.role,
+      };
     } catch (e) {
       console.log(e);
       await this.logger(ip, email, false);
@@ -158,17 +161,20 @@ export class AuthService {
       email: user.email,
       role: user.role,
     };
+
     const token = await this.jwtService.signAsync(payload);
     const refreshToken = crypto.randomBytes(32).toString('hex');
     const tokenHash = await bcrypt.hash(refreshToken, 10);
     const expiresAt = new Date();
     expiresAt.setDate(expiresAt.getDate() + 7);
-    const refreshTokenObj = {
+    const newToken = this.tokenRepo.create({
       tokenHash,
-      user,
+      user: { id: user.id } as User,
       expiresAt,
-    };
-    await this.tokenRepo.save(refreshTokenObj);
+    });
+
+    await this.tokenRepo.save(newToken);
+
     return { token, refreshToken };
   }
 }
