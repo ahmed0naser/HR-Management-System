@@ -1,5 +1,4 @@
 import {
-  BadRequestException,
   Body,
   Controller,
   DefaultValuePipe,
@@ -24,7 +23,7 @@ import { RolesEnum } from 'src/common/enums/roles.enum';
 import { RolesGuard } from 'src/common/guards/roles.guards';
 import { SelfGuard } from 'src/common/guards/self.guard';
 import { diskStorage } from 'multer';
-import { extname } from 'node:path';
+
 @Controller('/users')
 export class UserController {
   constructor(private readonly service: UserService) {}

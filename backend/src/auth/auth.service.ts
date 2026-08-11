@@ -111,7 +111,7 @@ export class AuthService {
     let user: User;
     try {
       user = await this.userService.findByEmail(email);
-    } catch (e) {
+    } catch {
       return;
     }
     const passwordResetToken = crypto.randomBytes(32).toString('hex');
