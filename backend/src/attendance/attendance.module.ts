@@ -7,8 +7,10 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Attendance } from './entities/attendance.entity';
 import { AttendanceRule } from './entities/attendanceRule.entity';
 
+import { UserModule } from 'src/users/users.module';
+
 @Module({
-  imports: [TypeOrmModule.forFeature([Attendance, AttendanceRule])],
+  imports: [TypeOrmModule.forFeature([Attendance, AttendanceRule]), UserModule],
   controllers: [AttendanceController, AttendanceRuleController],
   providers: [AttendanceService, AttendanceRuleService],
 })

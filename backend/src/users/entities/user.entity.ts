@@ -11,7 +11,8 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { RefreshToken } from './refreshToken.entity';
-const DEFAULT_TIME = 'CURRENT_TIMESTAMP(6)';
+import { ShiftType } from 'src/common/enums/shiftType.enum';
+export const DEFAULT_TIME = 'CURRENT_TIMESTAMP(6)';
 @Entity({ name: 'Users' })
 export class User {
   @PrimaryGeneratedColumn('uuid')
@@ -63,4 +64,7 @@ export class User {
   @Exclude()
   @Column({ type: 'timestamp', nullable: true, default: null })
   passwordResetTokenExpiry: Date | null;
+
+  @Column({ type: 'enum', enum: ShiftType, nullable: true })
+  shiftType: ShiftType | null;
 }

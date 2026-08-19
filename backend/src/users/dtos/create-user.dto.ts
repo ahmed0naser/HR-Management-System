@@ -11,6 +11,7 @@ import {
 } from 'class-validator';
 import { RolesEnum } from 'src/common/enums/roles.enum';
 import { EmpStatus } from 'src/common/enums/EmpStatus.enum';
+import { ShiftType } from 'src/common/enums/shiftType.enum';
 
 export class CreateUserDto {
   @IsEmail()
@@ -68,4 +69,7 @@ export class CreateUserDto {
   @IsOptional()
   @IsEnum(RolesEnum)
   role?: RolesEnum;
+  @IsOptional()
+  @IsEnum(ShiftType)
+  shiftType?: ShiftType;
 }

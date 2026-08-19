@@ -5,7 +5,7 @@ import {
   ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { User } from 'src/users/entities/user.entity';
+import { DEFAULT_TIME, User } from 'src/users/entities/user.entity';
 import { AttendanceStatus } from 'src/common/enums/attendanceStatus.enum';
 
 @Entity()
@@ -34,6 +34,6 @@ export class Attendance {
   @Column({ default: false })
   isLate: boolean;
 
-  @CreateDateColumn()
+  @CreateDateColumn({ type: 'timestamp', default: () => DEFAULT_TIME })
   createdAt: Date;
 }
