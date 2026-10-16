@@ -18,7 +18,7 @@ import { RolesGuard } from 'src/common/guards/roles.guards';
 import { Roles } from 'src/common/decorators/roles.decorator';
 import { RolesEnum } from 'src/common/enums/roles.enum';
 import { AuthGuard } from '@nestjs/passport';
-import { UpdateAttendanceDto } from './dto/UpdateAttendance.dto';
+import { UpdateAttendanceDto } from './dto/updateAttendance.dto';
 
 @Controller('attendance')
 export class AttendanceController {
@@ -53,7 +53,8 @@ export class AttendanceController {
     @Query('pageNumber', new DefaultValuePipe(1), ParseIntPipe)
     pageNumber: number,
     @Query('limit', new DefaultValuePipe(20), ParseIntPipe) limit: number,
+    @CurrentUser() user: payloadType,
   ) {
-    return this.attendanceService.find(pageNumber, limit);
+    return this.attendanceService.find(pageNumber, limit, user);
   }
 }

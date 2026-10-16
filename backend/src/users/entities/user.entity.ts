@@ -6,6 +6,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
@@ -67,4 +68,6 @@ export class User {
 
   @Column({ type: 'enum', enum: ShiftType, nullable: true })
   shiftType: ShiftType | null;
+  @ManyToOne(() => User, { nullable: true, onDelete: 'SET NULL' })
+  manager: User | null;
 }

@@ -12,7 +12,7 @@ import { AttendanceRuleService } from './attendance-rule.service';
 import { UserService } from 'src/users/users.service';
 import { AttendanceStatus } from 'src/common/enums/attendanceStatus.enum';
 import { User } from 'src/users/entities/user.entity';
-import { UpdateAttendanceDto } from './dto/UpdateAttendance.dto';
+import { UpdateAttendanceDto } from './dto/updateAttendance.dto';
 import { AttendanceRule } from './entities/attendanceRule.entity';
 import { payloadType } from 'src/common/types/payloadType';
 import { RolesEnum } from 'src/common/enums/roles.enum';
@@ -80,28 +80,31 @@ export class AttendanceService {
   async findOne(id: string, requestingUser: payloadType) {
     const record = await this.attendanceRepo.findOne({
       where: { id },
-      relations: { employee: true },
+      relations: { employee: { manager: true } },
     });
     if (!record) throw new NotFoundException();
 
     const isOwner = record.employee.id === requestingUser.sub;
-    const isPrivileged = [
-      RolesEnum.Admin,
-      RolesEnum.HR_Manager,
-      RolesEnum.Manager,
-    ].includes(requestingUser.role);
+    const isAdminOrHr = [RolesEnum.Admin, RolesEnum.HR_Manager].includes(
+      requestingUser.role,
+    );
+    const isTheirManager =
+      requestingUser.role === RolesEnum.Manager &&
+      record.employee.manager?.id === requestingUser.sub;
 
-    if (!isOwner && !isPrivileged) {
+    if (!isOwner && !isAdminOrHr && !isTheirManager)
       throw new ForbiddenException();
-    }
-
     return record;
   }
-  async find(pageNumber: number, limit: number) {
+  async find(pageNumber: number, limit: number, user: payloadType) {
     return this.attendanceRepo.find({
       take: limit,
       skip: limit * (pageNumber - 1),
       relations: { employee: true },
+      where:
+        user.role === RolesEnum.Manager
+          ? { employee: { manager: { id: user.sub } } }
+          : {},
     });
   }
 

@@ -8,6 +8,7 @@ import {
   Length,
   MinLength,
   MaxLength,
+  IsUUID,
 } from 'class-validator';
 import { RolesEnum } from 'src/common/enums/roles.enum';
 import { EmpStatus } from 'src/common/enums/EmpStatus.enum';
@@ -72,4 +73,7 @@ export class CreateUserDto {
   @IsOptional()
   @IsEnum(ShiftType)
   shiftType?: ShiftType;
+  @IsOptional()
+  @IsUUID()
+  managerId?: string;
 }
